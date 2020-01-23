@@ -3,7 +3,9 @@ exports.defineModel = async function defineModel(swc) {
 	swc.dao.models.students = swc.dao.seq.define("students", {
 		student_id: { type: Sequelize.STRING(40) }, //唯一ID
 		name: { type: Sequelize.STRING() }, // 学生姓名
-		student_number: { type: Sequelize.STRING() }, // 学号，学号和ID不一样。ID用来做数据库表索引用
+		student_number: { type: Sequelize.STRING() }, // 学号唯一，学号和ID不一样。ID用来做数据库表索引用
+		password: { type: Sequelize.STRING()}, // 密码
+		session: { type: Sequelize.STRING(40) }, // 登陆凭证
 		
 		create_at: { type: Sequelize.STRING() },
 		update_at: { type: Sequelize.STRING() },
@@ -14,7 +16,9 @@ exports.defineModel = async function defineModel(swc) {
 	swc.dao.models.teachers = swc.dao.seq.define("teachers", {
 		teacher_id: { type: Sequelize.STRING(40) }, //唯一ID
 		name: { type: Sequelize.STRING() }, // 老师姓名
-		email: { type: Sequelize.STRING() },
+		email: { type: Sequelize.STRING() }, // email唯一
+		password: { type: Sequelize.STRING() }, // 密码
+		session: { type: Sequelize.STRING(40) }, // 登陆凭证
 
 		create_at: { type: Sequelize.STRING() },
 		update_at: { type: Sequelize.STRING() },
