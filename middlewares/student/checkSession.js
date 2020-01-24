@@ -11,6 +11,13 @@ module.exports = async function(req, res, next) {
         query = req.body;
     }
     var session = query.session;
+    if (!session) {
+        req.response = await swc.Error(swc, {
+            code: '4003'
+        });
+        res.send(req.response);
+        return;
+    }
     /**
      * 用session反查学生数据
      */
@@ -25,7 +32,7 @@ module.exports = async function(req, res, next) {
         req.response = await swc.Error(swc, {
             code : '4003'
         });
-        next();
+        res.send(req.response);
         return ; 
     }
     

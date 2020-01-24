@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="/edms/libs/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+
+<body>
+    <v-app id="app">
+        <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
+            <v-list>
+                <template v-for="item in items">
+                    <v-row v-if="item.heading" :key="item.heading" align="center">
+                        <v-col cols="6">
+                            <v-subheader v-if="item.heading">
+                                {{ item.heading }}
+                            </v-subheader>
+                        </v-col>
+                        <v-col cols="6" class="text-center">
+                            <a href="#!" class="body-2 black--text">EDIT</a>
+                        </v-col>
+                    </v-row>
+                    <v-list-group v-else-if="item.children" :key="item.text" v-model="item.model"
+                        :prepend-icon="item.model ? item.icon : item['icon-alt']" append-icon="">
+                        <template v-slot:activator>
+                            <v-list-item-content>
+                                <v-list-item-title>
+                                    {{ item.text }}
+                                </v-list-item-title>
+                            </v-list-item-content>
+                        </template>
+                        <v-list-item v-for="(child, i) in item.children" :key="i" link>
+                            <v-list-item-action v-if="child.icon">
+                                <v-icon>{{ child.icon }}</v-icon>
+                            </v-list-item-action>
+                            <v-list-item-content>
+                                <v-list-item-title>
+                                    {{ child.text }}
+                                </v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list-group>
+                    <v-list-item v-else :key="item.text" link>
+                        <v-list-item-action>
+                            <v-icon>{{ item.icon }}</v-icon>
+                        </v-list-item-action>
+                        <v-list-item-content>
+                            <v-list-item-title>
+                                {{ item.text }}
+                            </v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                </template>
+            </v-list>
+        </v-navigation-drawer>
+
+        <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark>
+            <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+            <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
+                <span>EDMS 教师后台管理</span>
+            </v-toolbar-title>
+            <v-spacer></v-spacer>
+
+            <div v-if="data.user.status == 0">
+                获取中...
+            </div>
+            <div v-if="data.user.status == 1">
+                欢迎：{{data.user.name}} /
+                <a style="color:#ddd" @click="logout">登出</a>
+            </div>
+            <div v-if="data.user.status == 2">
+                <a style="color:white" @click="toLogin">登陆</a> /
+                <a style="color:white" @click="toRegister">注册</a>
+            </div>
+        </v-app-bar>
+
+        <v-content style="width:90%;margin-left:5%;margin-top:20px">
+            <v-layout row wrap>
+                <v-flex xs12>
+                    <v-form>
+                        <v-text-field label="课程名称" id="login" type="text" v-model="data.form.name">
+                        </v-text-field>
+                    </v-form>
+                    <v-btn @click="addCourse" color="primary">确认</v-btn>
+                </v-flex>
+            </v-layout>
+        </v-content>
+    </v-app>
+    <script src="/edms/libs/jquery.min.js"></script>
+    <script src="/edms/libs/vue.js"></script>
+    <script src="/edms/libs/vuetify.js"></script>
+    <script src="config.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            props: {
+                source: String,
+            },
+            data: {
+                data: {
+                    user: {
+                        status: 0, // 0获取中，1已获取，2未登陆
+                        name: null,
+                        email: null,
+                        teacher_id : null
+                    },
+                    form : {
+                        name : ''
+                    }
+                },
+                loading: false,
+                dialog: false,
+                drawer: false,
+                items: swc.config.indexDrawer,
+            },
+            mounted: function () {
+                this.init();
+            },
+            methods: {
+                getUserInformation: function () {
+                    var that = this;
+                    $.ajax({
+                        url: swc.config.baseUrl + '/api/public/teacher/get_user?session=' +
+                            swc.utils.ls.get('teacherSession'),
+                        success: function (res) {
+                            if (res.source.name != undefined) {
+                                that.data.user.status = 1;
+                                that.data.user.teacher_id = res.source.teacher_id;
+                                that.data.user.name = res.source.name;
+                                that.data.user.email = res.source.email;
+                            } else {
+                                that.data.user.status = 2;
+                            }
+                        }
+                    })
+                },
+                logout: function () {
+                    swc.utils.ls.clear('teacherSession');
+                    location.reload();
+                },
+                init: function () {
+                    this.getUserInformation();
+                },
+
+                addCourse : function(){
+                    var that = this;
+                    this.data.form.session = swc.utils.ls.get('teacherSession');
+                    $.ajax({
+                        url : swc.config.baseUrl + '/api/public/teacher/add_course',
+                        method: 'post',
+                        headers: {
+                            'Content-Type': 'Application/json'
+                        },
+                        data: JSON.stringify(this.data.form),
+                        success: function (res) {
+                            if (!swc.utils.checkRes(res)) {
+                                return;
+                            }
+                            alert('添加课程成功！');
+                            that.toIndex();
+                        }
+                    })
+                },
+
+                toIndex: function () {
+                    location.href = swc.config.baseUrl + '/teacher/index.html';
+                },
+                toLogin: function () {
+                    location.href = swc.config.baseUrl + '/teacher/login.html';
+                },
+                toRegister: function () {
+                    location.href = swc.config.baseUrl + '/teacher/register.html';
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

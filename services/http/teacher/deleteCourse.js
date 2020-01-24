@@ -1,7 +1,6 @@
 /*
-* 注册接口
-* @param student_numer 学号
-* @param password 密码
+* 删除课程接口
+* @param course_id 学号
 */
 module.exports = {
     config: {

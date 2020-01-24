@@ -1,7 +1,6 @@
 /*
-* 注册接口
-* @param student_numer 学号
-* @param password 密码
+* 教师调用的创建课程接口
+* @param name 课程名称
 */
 module.exports = {
     config: {
@@ -18,7 +17,19 @@ module.exports = {
         var swc = req.swc;
 
         try {
+            if(query.name == undefined) {
+                throw await swc.Error(swc, {
+                    code : '40005'
+                })
+            }
+            var course = await swc.models.course.create(swc, {
+                name : query.name,
+                teacher_id : req.response.source.teacher_id
+            })
             
+            req.response.course = course;
+            next();
+            return ;
         } catch (e) {
             console.log(e);
             req.response = e;

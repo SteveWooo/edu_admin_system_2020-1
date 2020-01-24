@@ -19,7 +19,7 @@ module.exports = async function (req, res, next) {
         req.response = await swc.Error(swc, {
             code: '4003'
         });
-        next();
+        res.send(req.response);
         return;
     }
 

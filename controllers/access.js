@@ -26,6 +26,10 @@ module.exports = async (swc, options)=>{
 		modelName: 'teacher',
 		path: `${__dirname}/../models/teacher.js`
 	})
+	swc = await swc.registerModel(swc, {
+		modelName: 'course',
+		path: `${__dirname}/../models/course.js`
+	})
 
 	swc = await swc.registerStatic(swc, {
 		items: [{
@@ -46,6 +50,13 @@ module.exports = async (swc, options)=>{
 	swc = await swc.registerHttpService(swc, {
 		httpServiceFilePath: `${__dirname}/../services/http`
 	})
+
+	// 文件上传服务。
+	swc = await swc.registerService(swc, {
+		serviceName : 'fileUpload',
+		path : `${__dirname}/../services/fileUpload/service`
+	})
+	swc.services.fileUpload.startup(swc, {});
 
 	if(swc.argv['initDb'] === '1') {
 		await initDb(swc, options);
