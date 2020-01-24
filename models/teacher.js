@@ -28,7 +28,7 @@ async function getPassword(swc, options) {
  * @param student_number
  */
 async function checkIsExistEmail(swc, options) {
-    var teacher = await swc.dao.models.teacher.findAndCountAll({
+    var teacher = await swc.dao.models.teachers.findAndCountAll({
         where: {
             email: options.email
         }
@@ -42,16 +42,63 @@ async function checkIsExistEmail(swc, options) {
 }
 
 /**
- * 检查登陆密码是否正确
- * @param student_number 学号
- * @param password 登陆密码
+ * 更新session函数
+ * @param object 目标对象
  */
-handle.checkPassword = async (swc, options) => {
-    var teacher = await swc.dao.models.teacher.findAndCountAll({
+async function updateSession(swc, options) {
+    var now = +new Date();
+    var source = `${options.object.teacher_id}&${options.object.email}&${now}&${swc.config.server.public_salt}`;
+    var session = crypto.createHash('sha1').update(source).digest('hex');
+    return {
+        session: session
+    }
+}
+
+/**
+ * 更新登陆凭证
+ * @param email 唯一身份标示
+ */
+handle.updateSession = async (swc, options) => {
+    var result = {
+        session: undefined
+    }
+    var teacher = await swc.dao.models.teachers.findAndCountAll({
         where: {
             email: options.email
         }
     })
+    if (teacher.count == 0) {
+        throw await swc.Error(swc, {
+            code: '4004'
+        })
+    }
+
+    var session = (await updateSession(swc, {
+        object: teacher.rows[0]
+    })).session;
+    result.session = session;
+
+    await teacher.rows[0].update({
+        session: session
+    })
+
+    return result;
+}
+
+/**
+ * 检查登陆密码是否正确
+ * @param email 邮箱 唯一标识
+ * @param password 登陆密码
+ */
+handle.checkPassword = async (swc, options) => {
+    var teacher = await swc.dao.models.teachers.findAndCountAll({
+        where: {
+            email: options.email
+        }
+    })
+    var result = {
+        correct: false
+    }
 
     if (teacher.count == 0) {
         throw await swc.Error(swc, {
@@ -62,9 +109,11 @@ handle.checkPassword = async (swc, options) => {
     var password = crypto.createHash('sha1').update(`${options.password}&${swc.config.server.public_salt}`).digest('hex');
 
     if (password !== teacher.rows[0].password) {
-        return false;
+        result.correct = false;
+    } else {
+        result.correct = true;
     }
-    return true;
+    return result;
 }
 
 /**
@@ -97,7 +146,7 @@ handle.create = async (swc, options) => {
         teacher: teacher
     });
 
-    tracher.password = await getPassword(swc, {
+    teacher.password = await getPassword(swc, {
         password : options.password
     })
 

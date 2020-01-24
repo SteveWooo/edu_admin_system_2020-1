@@ -7,7 +7,7 @@
 */
 module.exports = {
     config: {
-        path: '/api/public/student/register',
+        path: '/api/public/teacher/register',
         method: 'post',
         middlewares: [],
         model: {
@@ -25,13 +25,13 @@ module.exports = {
                 query : query
             })
 
-            // 创建学生
-            var student = await swc.models.student.create(swc, {
+            // 创建教师
+            var teacher = await swc.models.teacher.create(swc, {
                 email : query.email,
                 name : query.name,
                 password : query.password
             })
-            req.response.student = student;
+            req.response.teacher = teacher;
             next();
         }catch(e) {
             console.log(e);

@@ -5,22 +5,22 @@ var handle = {};
  * 创建ID
  * @param name 学生姓名
  * @param create_at 创建日期
- * @param student_number 学号
+ * @param email 学号
  */
 async function createId(swc, options) {
-    var source = `${options.student.create_at}&${options.student.name}&${options.student.student_number}&${swc.config.server.public_salt}`;
+    var source = `${options.student.create_at}&${options.student.name}&${options.student.email}&${swc.config.server.public_salt}`;
     var hash = crypto.createHash('sha1').update(source).digest('hex');
     return hash;
 }
 
 /**
  * 检查是否用户是否重复存在
- * @param student_number
+ * @param email
  */
-async function checkIsExistStudentNumber(swc, options) {
+async function checkIsExistEmail(swc, options) {
     var student = await swc.dao.models.students.findAndCountAll({
         where : {
-            student_number : options.student_number
+            email : options.email
         }
     })
 
@@ -42,29 +42,82 @@ async function getPassword(swc, options) {
 }
 
 /**
+ * 更新session函数
+ * @param object 目标对象
+ */
+async function updateSession(swc, options) {
+    var now = +new Date();
+    var source = `${options.object.student_id}&${options.object.email}&${now}&${swc.config.server.public_salt}`;
+    var session = crypto.createHash('sha1').update(source).digest('hex');
+    return {
+        session : session
+    }
+}
+
+/**
  * 检查登陆密码是否正确
- * @param student_number 学号
+ * @param email 邮箱
  * @param password 登陆密码
  */
 handle.checkPassword = async(swc, options)=> {
     var student = await swc.dao.models.students.findAndCountAll({
         where : {
-            student_number : options.student_number
+            email : options.email
         }
     })
+    var result = {
+        correct : false
+    }
 
     if(student.count == 0) {
         throw await swc.Error(swc, {
             code : '4004'
         })
     }
+    result.student = student.rows[0];
 
     var password = crypto.createHash('sha1').update(`${options.password}&${swc.config.server.public_salt}`).digest('hex');
     
     if(password !== student.rows[0].password) {
-        return false;
+        throw await swc.Error(swc, {
+            code : '40003'
+        })
+    } else {
+        result.correct = true;
     }
-    return true;
+
+    return result;
+}
+
+/**
+ * 更新登陆凭证
+ * @param email 唯一身份标示
+ */
+handle.updateSession = async (swc, options)=> {
+    var result = {
+        session : undefined
+    }
+    var student = await swc.dao.models.students.findAndCountAll({
+        where: {
+            email: options.email
+        }
+    })
+    if(student.count == 0) {
+        throw await swc.Error(swc, {
+            code: '4004'
+        })
+    }
+
+    var session = (await updateSession(swc, {
+        object: student.rows[0]
+    })).session;
+    result.session = session;
+
+    await student.rows[0].update({
+        session : session
+    })
+
+    return result;
 }
 
 /**
@@ -76,7 +129,7 @@ handle.create = async (swc, options)=>{
     var now = +new Date(); // 这里写创建日期呗
     var student = {
         name : options.name,
-        student_number : options.student_number,
+        email : options.email,
         session : '',
         create_by : 'admin',
         update_by : 'admin',
@@ -85,8 +138,8 @@ handle.create = async (swc, options)=>{
     }
 
     // 先检查是否有重复
-    if (await checkIsExistStudentNumber(swc, {
-        student_number : student.student_number
+    if (await checkIsExistEmail(swc, {
+        email : student.email
     })) {
         throw await swc.Error(swc, {
             code : '50005'

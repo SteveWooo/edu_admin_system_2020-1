@@ -5,7 +5,7 @@
 */
 module.exports = {
     config: {
-        path: '/api/public/student/login',
+        path: '/api/public/teacher/login',
         method: 'post',
         middlewares: [],
         model: {
@@ -21,7 +21,7 @@ module.exports = {
             /**
              * 先去检查密码是否正确，错的话直接跳去catch
              */
-            await swc.models.student.checkPassword(swc, {
+            await swc.models.teacher.checkPassword(swc, {
                 email : query.email,
                 password : query.password
             })
@@ -29,7 +29,7 @@ module.exports = {
             /**
              * 拿最新的session。敏感函数，必须密码正确才能调用。
              */
-            var result = await swc.models.student.updateSession(swc, {
+            var result = await swc.models.teacher.updateSession(swc, {
                 email : query.email
             })
 
