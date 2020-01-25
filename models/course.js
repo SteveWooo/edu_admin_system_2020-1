@@ -1,3 +1,4 @@
+const fs = require('fs');
 const crypto = require('crypto');
 var handle = {};
 
@@ -12,6 +13,38 @@ async function createId(swc, options) {
     var hash = crypto.createHash('sha1').update(source).digest('hex');
     return hash;
 }
+
+/**
+ * 创建资源文件夹
+ * @param course 课程对象
+ */
+async function createResourceDir(swc, options) {
+    try{
+        fs.mkdirSync(`${__dirname}/../public/courseResources/${options.course.course_id}`);
+    }catch(e){
+
+    }
+    return ;
+}
+
+/**
+ * 删除文件夹方法
+ */
+async function deteleDir(path) {
+    var files = [];
+    if (fs.existsSync(path)) {
+        files = fs.readdirSync(path);
+        files.forEach(function (file, index) {
+            var curPath = path + "/" + file;
+            if (fs.statSync(curPath).isDirectory()) { // recurse
+                deleteall(curPath);
+            } else { // delete file
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(path);
+    }
+};
 
 /**
  * 检查是否用户是否存在
@@ -29,6 +62,25 @@ async function checkIsExistTeacher(swc, options) {
         return false;
     }
     return true;
+}
+
+/**
+ * 删除课程
+ * @param course_id
+ */
+handle.delete = async (swc, options)=>{
+    await swc.dao.models.courses.destroy({
+        where : {
+            course_id : options.course_id
+        }
+    })
+
+    try{
+        await deteleDir(`${__dirname}/../public/courseResources/${options.course_id}`);
+    }catch(e) {
+        // 不存在也不用管
+    }
+    return ;
 }
 
 /**
@@ -63,6 +115,11 @@ handle.create = async (swc, options) => {
     });
 
     var result = await swc.dao.models.courses.create(course);
+
+    // 创建资源目录
+    await createResourceDir(swc, {
+        course : course
+    })
     return result;
 }
 

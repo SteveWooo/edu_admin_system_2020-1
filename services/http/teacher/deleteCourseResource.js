@@ -1,10 +1,12 @@
+const fs = require('fs');
 /*
-* 删除课程接口
-* @param course_id 学号
+* 删除课程资源接口
+* @param course_id 课程id
+* @param filename 资源文件名
 */
 module.exports = {
     config: {
-        path: '/api/public/teacher/delete_course',
+        path: '/api/public/teacher/delete_course_resource',
         method: 'get',
         middlewares: ['teacher/checkSession'],
         model: {
@@ -17,9 +19,7 @@ module.exports = {
         var swc = req.swc;
 
         try {
-            await swc.models.course.delete(swc, {
-                course_id : query.course_id
-            })
+            fs.unlinkSync(`${__dirname}/../../../public/courseResources/${query.course_id}/${query.filename}`);
             next();
         } catch (e) {
             console.log(e);

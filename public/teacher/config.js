@@ -36,33 +36,6 @@ var swc = {
         ]
     },
     utils : {
-        checkRes : function(res) {
-            if(res.code == '4003') {
-                alert('请登陆');
-                location.href = swc.config.baseUrl + '/teacher/login.html';
-            }
-            if(res.code != '2000') {
-                alert(res.error_message);
-                return false;
-            }
-            return true;
-        },
-        ls : {
-            set : function(key, value) {
-                localStorage.setItem(key, value);
-            },
-            get : function(key) {
-                return localStorage.getItem(key);
-            },
-            setObject : function(key, value) {
-                localStorage.setItem(key, JSON.stringify(value));
-            },
-            getObject : function(key) {
-                return JSON.parse(localStorage.getItem(key));
-            },
-            clear : function(key) {
-                localStorage.clear(key);
-            }
-        }
+        
     }
 }

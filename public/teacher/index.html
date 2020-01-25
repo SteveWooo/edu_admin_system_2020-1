@@ -127,9 +127,13 @@
                                 <v-icon small>mdi-home</v-icon>
                                 作业
                             </v-btn>
-                            <v-btn small color="primary">
+                            <v-btn @click="toCourseResource(course)" small color="primary">
                                 <v-icon small>mdi-keyboard</v-icon>
                                 资源
+                            </v-btn>
+                            <v-btn @click="deleteCourse(course)" small color="red" style="color:white">
+                                <v-icon small>mdi-delete</v-icon>
+                                删除课程
                             </v-btn>
                         </v-card-actions>
                     </v-card>
@@ -141,6 +145,7 @@
     <script src="/edms/libs/vue.js"></script>
     <script src="/edms/libs/vuetify.js"></script>
     <script src="config.js"></script>
+    <script src="/edms/libs/swc_utils.js"></script>
     <script>
         new Vue({
             el: '#app',
@@ -171,6 +176,24 @@
                 this.init();
             },
             methods: {
+                deleteCourse : function(course) {
+                    var that = this;
+                    if(!confirm('确认删除？')){
+                        return ;
+                    }
+                    $.ajax({
+                        url: swc.config.baseUrl + '/api/public/teacher/delete_course?session=' +
+                            swc.utils.ls.get('teacherSession') + '&course_id=' + 
+                            course.course_id,
+                        success: function (res) {
+                            if (!swc.utils.checkRes(res)) {
+                                return;
+                            }
+                            alert('删除成功');
+                            that.init();
+                        }
+                    })
+                },
                 getUserInformation : function(){
                     var that = this;
                     $.ajax({
@@ -221,6 +244,10 @@
                 },
                 toRegister: function () {
                     location.href = swc.config.baseUrl + '/teacher/register.html';
+                },
+                toCourseResource : function(course){
+                    location.href = swc.config.baseUrl + '/teacher/course_resource.html?course_id=' + 
+                        course.course_id;
                 }
             }
         })

@@ -79,12 +79,34 @@
 
         <v-content style="width:90%;margin-left:5%;margin-top:20px">
             <v-layout row wrap>
-                <v-flex xs12>
-                    <v-form>
-                        <v-text-field label="课程名称" id="login" type="text" v-model="data.form.name">
-                        </v-text-field>
-                    </v-form>
-                    <v-btn @click="addCourse" color="primary">确认</v-btn>
+                <v-flex xs6 style="text-align: left;">
+                    <h2>课程资源（点击下载）</h2>
+                </v-flex>
+                <v-flex xs6 style="text-align: right;">
+                    <v-btn small @click="toAddCourseResource" color="primary">
+                        上传资源
+                    </v-btn>
+                </v-flex>
+            </v-layout>
+
+            <v-layout row wrap style="margin-top:10px;">
+                <v-flex xs12 v-for="res in data.res.list" style="margin-top:20px">
+                    <v-layout row wrap
+                    style="width : 80%;margin-left:10%;border: 1px solid #333;border-radius: 5px;
+                    line-height: 60px;padding:0px 20px 0px 20px;font-size: 20px;
+                    color:#666;">
+                        <v-flex xs10>
+                            <a :href="res.filepath">
+                                {{res.filename}}
+                            </a>
+                        </v-flex>
+                        <v-flex xs2 style="text-align: right;">
+                            <v-btn color="red"
+                                @click="deleteCourseResource(res)" small>
+                                删除
+                            </v-btn>
+                        </v-flex>
+                    </v-layout>
                 </v-flex>
             </v-layout>
         </v-content>
@@ -106,11 +128,10 @@
                     user: {
                         status: 0, // 0获取中，1已获取，2未登陆
                         name: null,
-                        email: null,
-                        teacher_id : null
+                        email: null
                     },
-                    form : {
-                        name : ''
+                    res : {
+                        list : []
                     }
                 },
                 loading: false,
@@ -122,6 +143,27 @@
                 this.init();
             },
             methods: {
+                getCourseResourseList : function(){
+                    var that = this;
+                    $.ajax({
+                        url: swc.config.baseUrl + '/api/public/teacher/get_course_resource_list?session=' +
+                            swc.utils.ls.get('teacherSession') + '&course_id=' +
+                            swc.utils.getUrlParam('course_id'),
+                        success: function (res) {
+                            if (!swc.utils.checkRes(res)) {
+                                return;
+                            }
+                            that.data.res.list = res.list;
+                            for (var i = 0; i < res.list.length; i++) {
+                                that.data.res.list[i] = {
+                                    filename: res.list[i],
+                                    filepath: swc.config.baseUrl + '/course_resources/' +
+                                        swc.utils.getUrlParam('course_id') + '/' + res.list[i]
+                                }
+                            }
+                        }
+                    })
+                },
                 getUserInformation: function () {
                     var that = this;
                     $.ajax({
@@ -130,15 +172,37 @@
                         success: function (res) {
                             if (res.source.name != undefined) {
                                 that.data.user.status = 1;
-                                that.data.user.teacher_id = res.source.teacher_id;
                                 that.data.user.name = res.source.name;
                                 that.data.user.email = res.source.email;
+                                that.getCourseResourseList();
                             } else {
                                 that.data.user.status = 2;
+                                that.toLogin();
                             }
+                            // 这里需要注意，要先拉完用户信息，才能拉列表。用户未登陆，自动跳转登陆
+
                         }
                     })
                 },
+                deleteCourseResource: function (resource) {
+                    var that = this;
+                    if(!confirm('确认删除?')){
+                        return ;
+                    }
+                    $.ajax({
+                        url: swc.config.baseUrl + '/api/public/teacher/delete_course_resource?session=' +
+                            swc.utils.ls.get('teacherSession') + '&course_id=' +
+                            swc.utils.getUrlParam('course_id') + '&filename=' + resource.filename,
+                        success: function (res) {
+                            if (!swc.utils.checkRes(res)) {
+                                return;
+                            }
+                            alert('删除成功');
+                            that.init();
+                        }
+                    })
+                },
+                
                 logout: function () {
                     swc.utils.ls.clear('teacherSession');
                     location.reload();
@@ -147,35 +211,19 @@
                     this.getUserInformation();
                 },
 
-                addCourse : function(){
-                    var that = this;
-                    this.data.form.session = swc.utils.ls.get('teacherSession');
-                    $.ajax({
-                        url : swc.config.baseUrl + '/api/public/teacher/add_course',
-                        method: 'post',
-                        headers: {
-                            'Content-Type': 'Application/json'
-                        },
-                        data: JSON.stringify(this.data.form),
-                        success: function (res) {
-                            if (!swc.utils.checkRes(res)) {
-                                return;
-                            }
-                            alert('添加课程成功！');
-                            that.toIndex();
-                        }
-                    })
-                },
-
-                toIndex: function () {
-                    location.href = swc.config.baseUrl + '/teacher/index.html';
+                toAddCourse: function () {
+                    location.href = swc.config.baseUrl + '/teacher/add_course.html';
                 },
                 toLogin: function () {
                     location.href = swc.config.baseUrl + '/teacher/login.html';
                 },
                 toRegister: function () {
                     location.href = swc.config.baseUrl + '/teacher/register.html';
-                }
+                },
+                toAddCourseResource: function () {
+                    location.href = swc.config.baseUrl + '/teacher/add_course_resource.html?course_id=' +
+                        swc.utils.getUrlParam('course_id');
+                },
             }
         })
     </script>

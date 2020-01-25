@@ -44,6 +44,9 @@ module.exports = async (swc, options)=>{
 		}, {
 			path: `/${swc.config.server.bussiness_name}/libs`,
 			staticFilePath: `${__dirname}/../public/libs`
+		}, {
+			path: `/${swc.config.server.bussiness_name}/course_resources`,
+			staticFilePath: `${__dirname}/../public/courseResources`
 		}]
 	})
 
