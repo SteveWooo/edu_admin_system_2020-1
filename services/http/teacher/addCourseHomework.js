@@ -4,7 +4,7 @@
 */
 module.exports = {
     config: {
-        path: '/api/public/teacher/add_homework',
+        path: '/api/public/teacher/add_course_homework',
         method: 'post',
         middlewares: ['teacher/checkSession'],
         model: {
@@ -26,7 +26,8 @@ module.exports = {
                 title: query.title,
                 content : query.content,
                 dead_line : query.dead_line,
-                teacher_id: req.response.source.teacher_id
+                teacher_id: req.response.source.teacher_id,
+                course_id : query.course_id
             })
 
             req.response.homework = homework;

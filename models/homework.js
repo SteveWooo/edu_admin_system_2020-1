@@ -32,6 +32,19 @@ async function checkIsExistCourse(swc, options) {
 }
 
 /**
+ * 作业课程
+ * @param homework_id
+ */
+handle.delete = async (swc, options) => {
+    await swc.dao.models.homeworks.destroy({
+        where: {
+            homework_id: options.homework_id
+        }
+    })
+    return;
+}
+
+/**
  * 作业的创建
  * @param course_id 课程id
  * @param title 作业标题
@@ -67,7 +80,7 @@ handle.create = async (swc, options) => {
         homework: homework
     });
 
-    var result = await swc.dao.models.homeworks.create(course);
+    var result = await swc.dao.models.homeworks.create(homework);
     return result;
 }
 

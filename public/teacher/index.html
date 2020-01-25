@@ -123,7 +123,7 @@
                         <v-card-actions style="text-align: right;">
                             <a style="font-size: 14px;">学生管理</a>
                             <v-spacer></v-spacer>
-                            <v-btn small color="primary">
+                            <v-btn small color="primary" @click="toCourseHomework(course)">
                                 <v-icon small>mdi-home</v-icon>
                                 作业
                             </v-btn>
@@ -248,7 +248,11 @@
                 toCourseResource : function(course){
                     location.href = swc.config.baseUrl + '/teacher/course_resource.html?course_id=' + 
                         course.course_id;
-                }
+                },
+                toCourseHomework: function (course) {
+                    location.href = swc.config.baseUrl + '/teacher/course_homework.html?course_id=' +
+                       course.course_id;
+                },
             }
         })
     </script>
