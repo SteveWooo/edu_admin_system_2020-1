@@ -24,6 +24,7 @@ module.exports = {
             }
             var course = await swc.models.course.create(swc, {
                 name : query.name,
+                description : query.description,
                 teacher_id : req.response.source.teacher_id
             })
             

@@ -116,9 +116,12 @@
                 <v-flex xs12 v-for="course in data.course.list" style="margin-top:20px">
                     <v-card style="width:80%;margin-left:10%">
                         <v-card-text>
-                            <h4>
+                            <h2>
                                 {{course.name}}
-                            </h4>
+                            </h2>
+                            <div style="margin-top:10px;">
+                                {{course.description}}
+                            </div>
                         </v-card-text>
                         <v-card-actions style="text-align: right;">
                             <a style="font-size: 14px;">学生管理</a>

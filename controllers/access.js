@@ -34,6 +34,14 @@ module.exports = async (swc, options)=>{
 		modelName: 'homework',
 		path: `${__dirname}/../models/homework.js`
 	})
+	swc = await swc.registerModel(swc, {
+		modelName: 'student2Course',
+		path: `${__dirname}/../models/student2Course.js`
+	})
+	swc = await swc.registerModel(swc, {
+		modelName: 'student2Homework',
+		path: `${__dirname}/../models/student2Homework.js`
+	})
 
 	swc = await swc.registerStatic(swc, {
 		items: [{

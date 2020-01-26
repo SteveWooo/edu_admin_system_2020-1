@@ -79,14 +79,33 @@
 
         <v-content style="width:90%;margin-left:5%;margin-top:20px">
             <v-layout row wrap>
-                <v-flex xs12>
-                    <v-form>
-                        <v-text-field label="课程名称" type="text" v-model="data.form.name">
-                        </v-text-field>
-                        <v-text-field label="课程介绍" type="text" v-model="data.form.description">
-                        </v-text-field>
-                    </v-form>
-                    <v-btn @click="addCourse" color="primary">确认</v-btn>
+                <v-flex xs6 style="text-align: left;">
+                    <h2>课程作业管理</h2>
+                </v-flex>
+                <v-flex xs6 style="text-align: right;">
+                </v-flex>
+            </v-layout>
+
+            <v-layout row wrap style="margin-top:10px;">
+                <v-flex xs12 v-for="homework in data.homework.list" style="margin-top:20px">
+                    <v-layout row wrap style="width : 80%;margin-left:10%;border: 1px solid #333;border-radius: 5px;
+                    line-height: 50px;padding:0px 20px 0px 20px;font-size: 20px;
+                    color:#666;">
+                        <v-flex xs10>
+                            <h3>
+                                题目：{{homework.title}}
+                            </h3>
+                            <div style="line-height: 40px;font-size:16px;">
+                                详情：{{homework.content}}
+                            </div>
+                            <div style="line-height: 40px;font-size:16px;">
+                                截止日期：{{homework.dead_line}}
+                            </div>
+
+                        </v-flex>
+                        <v-flex xs2 style="text-align: right;">
+                        </v-flex>
+                    </v-layout>
                 </v-flex>
             </v-layout>
         </v-content>
@@ -108,12 +127,10 @@
                     user: {
                         status: 0, // 0获取中，1已获取，2未登陆
                         name: null,
-                        email: null,
-                        teacher_id : null
+                        email: null
                     },
-                    form : {
-                        name : '',
-                        description : ''
+                    homework: {
+                        list: []
                     }
                 },
                 loading: false,
@@ -125,23 +142,41 @@
                 this.init();
             },
             methods: {
-                getUserInformation: function () {
+                getCourseHomeworkList: function () {
                     var that = this;
                     $.ajax({
-                        url: swc.config.baseUrl + '/api/public/teacher/get_user?session=' +
-                            swc.utils.ls.get('teacherSession'),
+                        url: swc.config.baseUrl + '/api/public/student/get_course_homework_list?session=' +
+                            swc.utils.ls.get('studentSession') + '&course_id=' +
+                            swc.utils.getUrlParam('course_id'),
                         success: function (res) {
-                            if (res.source.name != undefined) {
-                                that.data.user.status = 1;
-                                that.data.user.teacher_id = res.source.teacher_id;
-                                that.data.user.name = res.source.name;
-                                that.data.user.email = res.source.email;
-                            } else {
-                                that.data.user.status = 2;
+                            if (!swc.utils.checkRes(res)) {
+                                return;
                             }
+                            that.data.homework.list = res.homework.rows;
                         }
                     })
                 },
+                getUserInformation: function () {
+                    var that = this;
+                    $.ajax({
+                        url: swc.config.baseUrl + '/api/public/student/get_user?session=' +
+                            swc.utils.ls.get('studentSession'),
+                        success: function (res) {
+                            if (res.source.name != undefined) {
+                                that.data.user.status = 1;
+                                that.data.user.name = res.source.name;
+                                that.data.user.email = res.source.email;
+                                that.getCourseHomeworkList();
+                            } else {
+                                that.data.user.status = 2;
+                                that.toLogin();
+                            }
+                            // 这里需要注意，要先拉完用户信息，才能拉列表。用户未登陆，自动跳转登陆
+
+                        }
+                    })
+                },
+
                 logout: function () {
                     swc.utils.ls.clear('teacherSession');
                     location.reload();
@@ -150,35 +185,15 @@
                     this.getUserInformation();
                 },
 
-                addCourse : function(){
-                    var that = this;
-                    this.data.form.session = swc.utils.ls.get('teacherSession');
-                    $.ajax({
-                        url : swc.config.baseUrl + '/api/public/teacher/add_course',
-                        method: 'post',
-                        headers: {
-                            'Content-Type': 'Application/json'
-                        },
-                        data: JSON.stringify(this.data.form),
-                        success: function (res) {
-                            if (!swc.utils.checkRes(res)) {
-                                return;
-                            }
-                            alert('添加课程成功！');
-                            that.toIndex();
-                        }
-                    })
-                },
-
-                toIndex: function () {
-                    location.href = swc.config.baseUrl + '/teacher/index.html';
+                toAddCourse: function () {
+                    location.href = swc.config.baseUrl + '/teacher/add_course.html';
                 },
                 toLogin: function () {
                     location.href = swc.config.baseUrl + '/teacher/login.html';
                 },
                 toRegister: function () {
                     location.href = swc.config.baseUrl + '/teacher/register.html';
-                }
+                },
             }
         })
     </script>

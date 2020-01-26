@@ -16,7 +16,7 @@ module.exports = {
     service: async (req, res, next) => {
         var query = req.query;
         var swc = req.swc;
-        if(!query.student_id || !query.course_id) {
+        if(!query.course_id) {
             req.response = await swc.Error(swc, {
                 code : '4003'
             });
@@ -25,8 +25,12 @@ module.exports = {
         }
 
         try {
-            
-            
+            var result = await swc.models.student2Course.create(swc, {
+                student_id : req.response.source.student_id,
+                course_id : query.course_id
+            })
+
+            req.response.student2Course = result;
             next();
         } catch (e) {
             console.log(e);

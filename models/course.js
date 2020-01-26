@@ -92,6 +92,7 @@ handle.create = async (swc, options) => {
     var now = +new Date(); // 这里写创建日期呗
     var course = {
         name: options.name,
+        description: options.description,
         teacher_id: options.teacher_id,
 
         create_by: 'admin',

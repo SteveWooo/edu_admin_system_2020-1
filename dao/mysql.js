@@ -32,6 +32,7 @@ exports.defineModel = async function defineModel(swc) {
 	swc.dao.models.courses = swc.dao.seq.define("courses", {
 		course_id: { type: Sequelize.STRING(40) }, //唯一ID
 		name: { type: Sequelize.STRING() }, // 课程名称
+		description: { type: Sequelize.STRING() }, // 课程介绍
 		teacher_id: { type: Sequelize.STRING(40) },
 
 		create_at: { type: Sequelize.STRING() },
@@ -95,6 +96,7 @@ exports.defineModel = async function defineModel(swc) {
 		homework_id: { type: Sequelize.STRING(40) },
 		homework_file_id: { type: Sequelize.STRING(40) },
 
+		submited: { type: Sequelize.INTEGER() }, // 提交状态
 		score: { type: Sequelize.FLOAT() }, // 作业评分
 		comment: { type: Sequelize.STRING() }, // 作业评语
 
@@ -138,16 +140,10 @@ exports.defineIndex = async function defineIndex(swc) {
 		as: 'course'
 	})
 
-	swc.dao.models.student_2_homeworks.belongsTo(swc.dao.models.students, {
-		foreignKey: 'student_id', //多的一个数据实体
-		targetKey: 'student_id', //少的一个数据实体
-		as: 'student'
-	})
-
-	swc.dao.models.student_2_homeworks.belongsTo(swc.dao.models.homeworks, {
+	swc.dao.models.homeworks.belongsTo(swc.dao.models.student_2_homeworks, {
 		foreignKey: 'homework_id', //多的一个数据实体
 		targetKey: 'homework_id', //少的一个数据实体
-		as: 'homework'
+		as: 'student2Homework'
 	})
 
 	swc.log.info('载入:数据索引');
