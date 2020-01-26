@@ -86,11 +86,11 @@
             <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
                 <span >EDMS主页</span>
             </v-toolbar-title>
-            <v-text-field flat solo-inverted hide-details label="课程搜索"
+            <!-- <v-text-field flat solo-inverted hide-details label="课程搜索"
                 class=""></v-text-field>
             <v-btn icon>
                 <v-icon>mdi-magnify</v-icon>
-            </v-btn>
+            </v-btn> -->
             <v-spacer></v-spacer>
             
             <div v-if="data.user.status == 0">
@@ -105,6 +105,51 @@
                 <a style="color:white" @click="toRegister">注册</a>
             </div>
         </v-app-bar> 
+
+        <v-content style="width:90%;margin-left:5%;margin-top:20px">
+            <v-layout row wrap>
+                <v-flex xs6 style="text-align: left;">
+                    <h2>所有课程</h2>
+                </v-flex>
+                <v-flex xs6 style="text-align: right;">
+                    <v-btn small color="primary">
+                        查看我的课程
+                    </v-btn>
+                </v-flex>
+            </v-layout>
+        
+            <v-layout row wrap style="margin-top:10px;">
+                <v-flex xs12 v-for="course in data.course.list" style="margin-top:20px">
+                    <v-card style="width:80%;margin-left:10%">
+                        <v-card-text>
+                            <h4>
+                                {{course.name}}
+                            </h4>
+                        </v-card-text>
+                        <v-card-actions style="text-align: right;">
+                            <v-spacer></v-spacer>
+                            <div v-if="course.chooseStatus==1">
+                                <v-btn small color="primary" @click="toCourseHomework(course)">
+                                    <v-icon small>mdi-home</v-icon>
+                                    作业
+                                </v-btn>
+                                <v-btn @click="toCourseResource(course)" small color="primary">
+                                    <v-icon small>mdi-keyboard</v-icon>
+                                    资源
+                                </v-btn>
+                            </div>
+                            <div v-if="course.chooseStatus==2">
+                                <v-btn @click="joinCourse(course)" small color="primary">
+                                    <v-icon small>mdi-home</v-icon>
+                                    加入课程
+                                </v-btn>
+                            </div>
+                        </v-card-actions>
+                    </v-card>
+                </v-flex>
+            </v-layout>
+        </v-content>
+
     </v-app>
     <script src="/edms/libs/jquery.min.js"></script>
     <script src="/edms/libs/vue.js"></script>
@@ -124,6 +169,12 @@
                         status : 0, // 0获取中，1已获取，2未登陆
                         name : null,
                         email : null
+                    },
+                    course: {
+                        list: [],
+                        count: 0,
+                        page: 1,
+                        itemPerPage: 10
                     }
                 },
                 loading : false,
@@ -145,12 +196,32 @@
                                 that.data.user.status = 1;
                                 that.data.user.name = res.source.name;
                                 that.data.user.email = res.source.email;
+                                that.getCourse();
+
                             } else {
                                 that.data.user.status = 2;
                             }
                         }
                     })
                 },
+                joinCourse: function(course) {
+
+                },
+                getCourse: function () {
+                    var that = this;
+                    $.ajax({
+                        url: swc.config.baseUrl + '/api/public/student/get_course?session=' +
+                            swc.utils.ls.get('studentSession'),
+                        success: function (res) {
+                            if (!swc.utils.checkRes(res)) {
+                                return;
+                            }
+                            that.data.course.list = res.courses.rows;
+                            that.data.course.count = res.courses.count;
+                        }
+                    })
+                },
+
                 logout : function(){
                     swc.utils.ls.clear('studentSession');
                     location.reload();
@@ -164,7 +235,15 @@
                 },
                 toRegister: function () {
                     location.href = swc.config.baseUrl + '/student/register.html';
-                }
+                },
+                toCourseResource: function (course) {
+                    location.href = swc.config.baseUrl + '/student/course_resource.html?course_id=' +
+                        course.course_id;
+                },
+                toCourseHomework: function (course) {
+                    location.href = swc.config.baseUrl + '/student/course_homework.html?course_id=' +
+                        course.course_id;
+                },
             }
         })
     </script>

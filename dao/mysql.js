@@ -76,7 +76,7 @@ exports.defineModel = async function defineModel(swc) {
 	 */
 	swc.dao.models.student_2_courses = swc.dao.seq.define("student_2_courses", {
 		student_2_course_id: { type: Sequelize.STRING(40) }, //唯一ID
-		teacher_id: { type: Sequelize.STRING(40) },
+		course_id: { type: Sequelize.STRING(40) },
 		student_id: { type: Sequelize.STRING(40) },
 
 		create_at: { type: Sequelize.STRING() },
