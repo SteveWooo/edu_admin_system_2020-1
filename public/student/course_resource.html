@@ -97,6 +97,11 @@
             </v-layout>
 
             <v-layout row wrap style="margin-top:10px;">
+                <v-flex xs12 style="text-align: center;" v-if="data.res.list.length == 0">
+                    <div>
+                        尚未有资源
+                    </div>
+                </v-flex>
                 <v-flex xs12 v-for="res in data.res.list" style="margin-top:20px">
                     <v-layout row wrap
                     style="width : 80%;margin-left:10%;border: 1px solid #333;border-radius: 5px;

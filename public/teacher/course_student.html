@@ -95,6 +95,11 @@
             </v-layout>
 
             <v-layout row wrap style="margin-top:10px;">
+                <v-flex xs12 style="text-align: center;" v-if="data.student.list.length == 0">
+                    <div>
+                        尚未有学生加入
+                    </div>
+                </v-flex>
                 <v-flex xs12 v-for="student in data.student.list" style="margin-top:20px">
                     <v-layout row wrap style="width : 80%;margin-left:10%;border: 1px solid #333;border-radius: 5px;
                     line-height: 60px;padding:0px 20px 0px 20px;font-size: 20px;
