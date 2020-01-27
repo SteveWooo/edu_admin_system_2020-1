@@ -94,9 +94,9 @@ exports.defineModel = async function defineModel(swc) {
 		student_2_homework_id: { type: Sequelize.STRING(40) }, //唯一ID
 		student_id: { type: Sequelize.STRING(40) },
 		homework_id: { type: Sequelize.STRING(40) },
-		homework_file_id: { type: Sequelize.STRING(40) },
+		filename: { type: Sequelize.STRING() },
 
-		submited: { type: Sequelize.INTEGER() }, // 提交状态
+		evaluated: { type: Sequelize.INTEGER() }, // 评分状态
 		score: { type: Sequelize.FLOAT() }, // 作业评分
 		comment: { type: Sequelize.STRING() }, // 作业评语
 
@@ -128,6 +128,7 @@ exports.defineIndex = async function defineIndex(swc) {
 		as: 'course'
 	})
 
+	// 查课程参与学生的时候要查学生的个人信息
 	swc.dao.models.student_2_courses.belongsTo(swc.dao.models.students, {
 		foreignKey: 'student_id', //多的一个数据实体
 		targetKey: 'student_id', //少的一个数据实体
@@ -140,10 +141,18 @@ exports.defineIndex = async function defineIndex(swc) {
 		as: 'course'
 	})
 
+	// 查作业表的时候要查是否已经交了作业
 	swc.dao.models.homeworks.belongsTo(swc.dao.models.student_2_homeworks, {
 		foreignKey: 'homework_id', //多的一个数据实体
 		targetKey: 'homework_id', //少的一个数据实体
 		as: 'student2Homework'
+	})
+
+	// 查已交作业列表的时候要查这个作业是谁交的
+	swc.dao.models.student_2_homeworks.belongsTo(swc.dao.models.students, {
+		foreignKey: 'student_id', //多的一个数据实体
+		targetKey: 'student_id', //少的一个数据实体
+		as: 'student'
 	})
 
 	swc.log.info('载入:数据索引');

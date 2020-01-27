@@ -60,7 +60,7 @@
         <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark>
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
             <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
-                <span>EDMS 教师后台管理</span>
+                <span>EDMS</span>
             </v-toolbar-title>
             <v-spacer></v-spacer>
 
@@ -80,7 +80,12 @@
         <v-content style="width:90%;margin-left:5%;margin-top:20px">
             <v-layout row wrap>
                 <v-flex xs6 style="text-align: left;">
-                    <h2>课程作业管理</h2>
+                    <h2>
+                        <a href="/edms/student/index.html">
+                            <v-icon>mdi-home</v-icon>
+                        </a>
+                        课程作业
+                    </h2>
                 </v-flex>
                 <v-flex xs6 style="text-align: right;">
                 </v-flex>
@@ -99,11 +104,29 @@
                                 详情：{{homework.content}}
                             </div>
                             <div style="line-height: 40px;font-size:16px;">
-                                截止日期：{{homework.dead_line}}
+                                截止日期：{{homework.dead_line}} 提交状态：
+                                <span v-if="homework.student2Homework != null" style="color:green">
+                                    已提交
+                                </span>
+                                <span v-if="homework.student2Homework == null" style="color:red">
+                                    未提交
+                                </span>
                             </div>
+                            <div
+                            style="line-height: 40px;font-size:16px;"
+                            v-if="homework.student2Homework != null">
+                                <div>分数：{{homework.student2Homework.score}}</div>
+                                <div>评语：{{homework.student2Homework.comment}}</div>
+                            </div
+                            >
 
                         </v-flex>
                         <v-flex xs2 style="text-align: right;">
+                            <v-btn v-if="homework.student2Homework == null || homework.student2Homework.score == null"
+                             @click="toSubmitHomework(homework)" small color="primary">
+                                提交作业
+                            </v-btn
+                            >
                         </v-flex>
                     </v-layout>
                 </v-flex>
@@ -178,7 +201,7 @@
                 },
 
                 logout: function () {
-                    swc.utils.ls.clear('teacherSession');
+                    swc.utils.ls.clear('studentSession');
                     location.reload();
                 },
                 init: function () {
@@ -186,14 +209,19 @@
                 },
 
                 toAddCourse: function () {
-                    location.href = swc.config.baseUrl + '/teacher/add_course.html';
+                    location.href = swc.config.baseUrl + '/student/add_course.html';
                 },
                 toLogin: function () {
-                    location.href = swc.config.baseUrl + '/teacher/login.html';
+                    location.href = swc.config.baseUrl + '/student/login.html';
                 },
                 toRegister: function () {
-                    location.href = swc.config.baseUrl + '/teacher/register.html';
+                    location.href = swc.config.baseUrl + '/student/register.html';
                 },
+                toSubmitHomework : function(homework) {
+                    location.href = swc.config.baseUrl + '/student/submit_homework.html?homework_id=' + 
+                        homework.homework_id + '&course_id=' + 
+                        swc.utils.getUrlParam('course_id');
+                }
             }
         })
     </script>

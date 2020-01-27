@@ -3,9 +3,9 @@
 */
 module.exports = {
     config: {
-        path: '/api/public/student/get_course_homework_list',
+        path: '/api/public/teacher/get_course_student',
         method: 'get',
-        middlewares: ['student/checkSession'],
+        middlewares: ['teacher/checkSession'],
         model: {
             code: 2000,
             source: {}
@@ -20,19 +20,19 @@ module.exports = {
             /**
              * 用teacher_id反查课程数据
              */
-            var homework = await swc.dao.models.homeworks.findAndCountAll({
+            var student2Course = await swc.dao.models.student_2_courses.findAndCountAll({
                 where: {
                     course_id: course_id
                 },
                 include : [{
-                    as: 'student2Homework',
-                    model : swc.dao.models.student_2_homeworks
+                    as : 'student',
+                    model : swc.dao.models.students
                 }],
                 order: [["create_at", 'DESC']],
                 limit: 200,
             })
 
-            req.response.homework = homework;
+            req.response.student2Course = student2Course;
             next();
         } catch (e) {
             console.log(e);

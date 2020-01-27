@@ -21,6 +21,8 @@ handle.create = async (swc, options) => {
     var student2Homework = {
         student_id: options.student_id,
         homework_id: options.homework_id,
+        filename : options.filename,
+        evaluated : 0,
         create_by: 'admin',
         update_by: 'admin',
         create_at: now,
@@ -36,7 +38,7 @@ handle.create = async (swc, options) => {
     /**
      * 创建新的作业之前，把旧的数据删掉。
      */
-    await swc.dao.models.student_2_homeworks.destory({
+    await swc.dao.models.student_2_homeworks.destroy({
         where : {
             student_id : options.student_id,
             homework_id : options.homework_id

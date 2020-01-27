@@ -6,6 +6,11 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="/edms/libs/vuetify.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <script src="/edms/libs/jquery.min.js"></script>
+    <script src="/edms/libs/vue.js"></script>
+    <script src="/edms/libs/vuetify.js"></script>
+    <script src="config.js"></script>
+    <script src="/edms/libs/swc_utils.js"></script>
 </head>
 
 <body>
@@ -80,46 +85,24 @@
         <v-content style="width:90%;margin-left:5%;margin-top:20px">
             <v-layout row wrap>
                 <v-flex xs6 style="text-align: left;">
-                    <h2>
-                        <a href="/edms/teacher/index.html">
-                            <v-icon>mdi-home</v-icon>
-                        </a>
-                        学生管理
-                    </h2>
+                    <h2>上传资源</h2>
                 </v-flex>
             </v-layout>
 
-            <v-layout row wrap style="margin-top:10px;">
-                <v-flex xs12 v-for="student in data.student.list" style="margin-top:20px">
-                    <v-layout row wrap style="width : 80%;margin-left:10%;border: 1px solid #333;border-radius: 5px;
-                    line-height: 60px;padding:0px 20px 0px 20px;font-size: 20px;
-                    color:#666;">
-                        <v-flex xs1>
-                            <input type="checkbox">
-                        </v-flex>
-                        <v-flex xs9 style="font-size: 16px;line-height: 40px;;">
-                            <div>
-                                姓名：{{student.student.name}}
-                            </div>
-                            <div>
-                                加入时间：{{swc.utils.parseTime(student.create_at)}}
-                            </div>
-                        </v-flex>
-                        <v-flex xs2 style="text-align: right;">
-                            <v-btn style="color:white" color="red" @click="deleteCourseStudent(student)" small>
-                                移除学生
-                            </v-btn>
-                        </v-flex>
-                    </v-layout>
+            <v-layout row wrap style="margin-top:10px;" v-if="conditions != undefined">
+                <v-flex xs12 style="margin-top:20px">
+                    <v-form :action="conditions.formAction" method="post" enctype="multipart/form-data">
+                        <input type="text" name="homework_id" v-model="conditions.homework_id" style="display: none;">
+                        <input type="text" name="student_id" v-model="conditions.student_id" style="display: none;">
+                        <input type="text" name="callback" v-model="conditions.callback" style="display: none;">
+                        <input type="file" name="file">
+                        <input type="submit" value="提交" style="border:1px solid #eee;border-radius: 5px;
+                            padding:5px 20px 5px 20px">
+                    </v-form>
                 </v-flex>
             </v-layout>
         </v-content>
     </v-app>
-    <script src="/edms/libs/jquery.min.js"></script>
-    <script src="/edms/libs/vue.js"></script>
-    <script src="/edms/libs/vuetify.js"></script>
-    <script src="config.js"></script>
-    <script src="/edms/libs/swc_utils.js"></script>
     <script>
         new Vue({
             el: '#app',
@@ -128,16 +111,17 @@
                 source: String,
             },
             data: {
-                swc : swc,
                 data: {
                     user: {
                         status: 0, // 0获取中，1已获取，2未登陆
                         name: null,
                         email: null
                     },
-                    student: {
-                        list: []
-                    }
+                },
+                conditions: {
+                    formAction: '',
+                    student_id : '',
+                    homework_id : '',
                 },
                 loading: false,
                 dialog: false,
@@ -148,31 +132,17 @@
                 this.init();
             },
             methods: {
-                getCourseStudent: function () {
-                    var that = this;
-                    $.ajax({
-                        url: swc.config.baseUrl + '/api/public/teacher/get_course_student?session=' +
-                            swc.utils.ls.get('teacherSession') + '&course_id=' +
-                            swc.utils.getUrlParam('course_id'),
-                        success: function (res) {
-                            if (!swc.utils.checkRes(res)) {
-                                return;
-                            }
-                            that.data.student.list = res.student2Course.rows;
-                        }
-                    })
-                },
                 getUserInformation: function () {
                     var that = this;
                     $.ajax({
-                        url: swc.config.baseUrl + '/api/public/teacher/get_user?session=' +
-                            swc.utils.ls.get('teacherSession'),
+                        url: swc.config.baseUrl + '/api/public/student/get_user?session=' +
+                            swc.utils.ls.get('studentSession'),
                         success: function (res) {
                             if (res.source.name != undefined) {
                                 that.data.user.status = 1;
                                 that.data.user.name = res.source.name;
                                 that.data.user.email = res.source.email;
-                                that.getCourseStudent();
+                                that.conditions.student_id = res.source.student_id;
                             } else {
                                 that.data.user.status = 2;
                                 that.toLogin();
@@ -182,37 +152,26 @@
                         }
                     })
                 },
-                deleteCourseStudent: function (student) {
-                    var that = this;
-                    if (!confirm('确认移除学生？?')) {
-                        return;
-                    }
-                    $.ajax({
-                        url: swc.config.baseUrl + '/api/public/teacher/delete_course_student?session=' +
-                            swc.utils.ls.get('teacherSession') + '&student_2_course_id=' + student.student_2_course_id,
-                        success: function (res) {
-                            if (!swc.utils.checkRes(res)) {
-                                return;
-                            }
-                            alert('移除成功');
-                            that.init();
-                        }
-                    })
-                },
 
                 logout: function () {
-                    swc.utils.ls.clear('teacherSession');
+                    swc.utils.ls.clear('studentSession');
                     location.reload();
                 },
                 init: function () {
                     this.getUserInformation();
+                    this.conditions.callback = swc.config.baseUrl +
+                        '/student/course_homework.html?course_id=' +
+                        swc.utils.getUrlParam('course_id');
+
+                    this.conditions.homework_id = swc.utils.getUrlParam('homework_id');
+                    this.conditions.formAction = swc.config.baseUrl + '/homework_upload';
                 },
 
                 toLogin: function () {
-                    location.href = swc.config.baseUrl + '/teacher/login.html';
+                    location.href = swc.config.baseUrl + '/student/login.html';
                 },
                 toRegister: function () {
-                    location.href = swc.config.baseUrl + '/teacher/register.html';
+                    location.href = swc.config.baseUrl + '/student/register.html';
                 },
             }
         })

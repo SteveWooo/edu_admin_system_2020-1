@@ -27,16 +27,29 @@ var homeworkStorage = multer.diskStorage({
          * 防止文件夹不存在
          */
         try {
-            fs.mkdirSync(`${__dirname}/../../public/homeworks/${req.body.course_id}`);
+            fs.mkdirSync(`${__dirname}/../../public/homeworks/${req.body.homework_id}`);
         } catch (e) {
             // 重复创建就不用理会了
         }
-        cb(null, `${__dirname}/../../public/homeworks/${req.body.course_id}/`);
+        cb(null, `${__dirname}/../../public/homeworks/${req.body.homework_id}/`);
     },
     filename: async function (req, file, cb) {
         var swc = req.swc;
-        
-        cb(null, file.originalname);
+
+        var student = await swc.dao.models.students.findAndCountAll({
+            where: {
+                student_id: req.body.student_id
+            }
+        })
+        // 用学生姓名来命名
+        var filename = `${student.rows[0].name}-${student.rows[0].student_id}-${file.originalname}`;
+        var student2Homework = await swc.models.student2Homework.create(swc, {
+            homework_id : req.body.homework_id,
+            student_id : req.body.student_id,
+            filename : filename
+        })
+
+        cb(null, filename);
     }
 })
 var homeworkUploader = multer({

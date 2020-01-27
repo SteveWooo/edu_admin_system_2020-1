@@ -1,3 +1,7 @@
+const fs = require('fs');
+/**
+ * 初始化数据库所有信息（其实直接删库最方便）
+ */
 async function initDb(swc, options) {
 	swc.log.info('init db')
 	await swc.dao.models.students.destroy({
@@ -7,9 +11,26 @@ async function initDb(swc, options) {
 }
 
 /**
+ * 初始化文件上传目录
+ */
+async function initFolder(swc, options) {
+	try{
+		fs.mkdirSync(`${__dirname}/../public/courseResources`);
+	}catch(e) {
+		// 已经存在的话就不用理会了
+	}
+	try {
+		fs.mkdirSync(`${__dirname}/../public/homeworks`);
+	} catch (e) {
+		// 已经存在的话就不用理会了
+	}
+}
+
+/**
  * 注册各种组件的入口。
  */
 module.exports = async (swc, options)=>{
+	await initFolder(swc, options);
 	swc = await swc.registerMysqlDao(swc, {
 		servicePath: `${__dirname}/../dao/mysql.js`
 	});
@@ -59,6 +80,9 @@ module.exports = async (swc, options)=>{
 		}, {
 			path: `/${swc.config.server.bussiness_name}/course_resources`,
 			staticFilePath: `${__dirname}/../public/courseResources`
+		}, {
+			path: `/${swc.config.server.bussiness_name}/homeworks`,
+			staticFilePath: `${__dirname}/../public/homeworks`
 		}]
 	})
 

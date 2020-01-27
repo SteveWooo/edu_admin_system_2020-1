@@ -124,7 +124,7 @@
                             </div>
                         </v-card-text>
                         <v-card-actions style="text-align: right;">
-                            <a style="font-size: 14px;">学生管理</a>
+                            <a @click="toCourseStudent(course)" style="font-size: 14px;">学生管理</a>
                             <v-spacer></v-spacer>
                             <v-btn small color="primary" @click="toCourseHomework(course)">
                                 <v-icon small>mdi-home</v-icon>
@@ -255,6 +255,10 @@
                 toCourseHomework: function (course) {
                     location.href = swc.config.baseUrl + '/teacher/course_homework.html?course_id=' +
                        course.course_id;
+                },
+                toCourseStudent: function (course) {
+                    location.href = swc.config.baseUrl + '/teacher/course_student.html?course_id=' +
+                        course.course_id;
                 },
             }
         })

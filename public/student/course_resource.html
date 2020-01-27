@@ -60,7 +60,7 @@
         <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark>
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
             <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
-                <span>EDMS 教师后台管理</span>
+                <span>EDMS</span>
             </v-toolbar-title>
             <v-spacer></v-spacer>
 
@@ -80,7 +80,12 @@
         <v-content style="width:90%;margin-left:5%;margin-top:20px">
             <v-layout row wrap>
                 <v-flex xs6 style="text-align: left;">
-                    <h2>课程资源（点击下载）</h2>
+                    <h2>
+                        <a href="/edms/student/index.html">
+                            <v-icon>mdi-home</v-icon>
+                        </a>
+                        课程资源（点击下载）
+                    </h2>
                 </v-flex>
                 <v-flex xs6 style="text-align: right;">
                 </v-flex>
@@ -179,7 +184,7 @@
                 },
                 
                 logout: function () {
-                    swc.utils.ls.clear('teacherSession');
+                    swc.utils.ls.clear('studentSession');
                     location.reload();
                 },
                 init: function () {
@@ -187,13 +192,13 @@
                 },
 
                 toAddCourse: function () {
-                    location.href = swc.config.baseUrl + '/teacher/add_course.html';
+                    location.href = swc.config.baseUrl + '/student/add_course.html';
                 },
                 toLogin: function () {
-                    location.href = swc.config.baseUrl + '/teacher/login.html';
+                    location.href = swc.config.baseUrl + '/student/login.html';
                 },
                 toRegister: function () {
-                    location.href = swc.config.baseUrl + '/teacher/register.html';
+                    location.href = swc.config.baseUrl + '/student/register.html';
                 },
             }
         })

@@ -104,3 +104,6 @@ dist
 .tern-port
 
 conf/config.test.json
+
+public/homeworks/*
+public/courseResources/*

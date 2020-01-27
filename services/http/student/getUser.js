@@ -36,7 +36,8 @@ module.exports = {
 
             req.response.source = {
                 name: student.rows[0].name,
-                email: student.rows[0].email
+                email: student.rows[0].email,
+                student_id : student.rows[0].student_id
             }
             next();
         } catch (e) {

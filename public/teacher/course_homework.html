@@ -80,7 +80,12 @@
         <v-content style="width:90%;margin-left:5%;margin-top:20px">
             <v-layout row wrap>
                 <v-flex xs6 style="text-align: left;">
-                    <h2>课程作业管理</h2>
+                    <h2>
+                        <a href="/edms/teacher/index.html">
+                            <v-icon>mdi-home</v-icon>
+                        </a>
+                        课程作业管理
+                    </h2>
                 </v-flex>
                 <v-flex xs6 style="text-align: right;">
                     <v-btn small @click="toAddCourseHomework()" color="primary">
@@ -110,6 +115,10 @@
                             <v-btn style="color:white" color="red" @click="deleteCourseHomework(homework)" small>
                                 <v-icon>mdi-delete</v-icon>
                                 删除
+                            </v-btn>
+                            <v-btn style="color:white" color="success" @click="toCourseHomeworkDetail(homework)" small>
+                                <v-icon>mdi-submit</v-icon>
+                                提交状态
                             </v-btn>
                         </v-flex>
                     </v-layout>
@@ -183,6 +192,9 @@
                         }
                     })
                 },
+                /**
+                 *  调用删除课程作业接口
+                 **/
                 deleteCourseHomework: function (homework) {
                     var that = this;
                     if (!confirm('确认删除?')) {
@@ -223,6 +235,11 @@
                     location.href = swc.config.baseUrl + '/teacher/add_course_homework.html?course_id=' +
                         swc.utils.getUrlParam('course_id');
                 },
+                toCourseHomeworkDetail : function(homework){
+                    location.href = swc.config.baseUrl + '/teacher/course_homework_detail.html?course_id=' +
+                        swc.utils.getUrlParam('course_id') + '&homework_id=' + 
+                        homework.homework_id;
+                }
             }
         })
     </script>
