@@ -6,10 +6,15 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="/edms/libs/vuetify.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <style>        
+        [v-cloak] {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
-    <v-app id="app">
+    <v-app id="app" v-cloak>
         <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
             <v-list>
                 <template v-for="item in items">
